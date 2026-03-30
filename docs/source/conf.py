@@ -255,3 +255,18 @@ def env_get_outdated(app, env, added, changed, removed):
 
 def setup(app):
     app.connect('env-get-outdated', env_get_outdated)
+    app.connect('autodoc-skip-member', skip_inherited_int_methods)
+# -- Suppress Sphinx warnings for inherited int methods and duplicate objects
+# Fixes: https://github.com/OpenMS/OpenMS/issues/9013
+suppress_warnings = [
+    "docutils",
+    "autodoc.duplicate_object",
+]
+
+
+def skip_inherited_int_methods(app, what, name, obj, skip, options):
+    """Skip inherited int methods that produce malformed docstring warnings."""
+    if name in ('from_bytes', 'to_bytes', 'bit_length', 'bit_count',
+                'as_integer_ratio', 'conjugate'):
+        return True
+    return skip
